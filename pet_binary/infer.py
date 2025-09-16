@@ -1,11 +1,6 @@
 import numpy as np
 
 
-def relu6(x):
-    x = np.asarray(x)
-    return np.clip(x, 0, 6)
-
-
 def sigmoid(x):
     """
     stable sigmoid
@@ -18,11 +13,17 @@ class Net():
     """
     Network inference numpy version
     """
-    def __init__(self, wi, alpha, wo, act=relu6):
+    def __init__(self, wi, alpha, wo):
         self.wi = wi
         self.alpha = alpha
         self.wo = wo
-        self.act = act
+
+    def act(self, x):
+        """
+        relu6
+        """
+        y = np.clip(x, 0, 6)
+        return y
 
     def forward(self, x, hx):
         g = self.alpha

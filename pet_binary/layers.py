@@ -7,7 +7,7 @@ class EMA(nn.Module):
     """
     Exponential Moving Average.
     """
-    def __init__(self, in_chn=8, length=40):
+    def __init__(self, in_chn=8, length=80):
         super().__init__()
         self.in_chn = in_chn
         self.length = length
@@ -18,7 +18,7 @@ class EMA(nn.Module):
     def forward(self, x):
         alpha = self.alpha
         with torch.no_grad():
-            alpha.clip_(0, 1)
+            alpha.clip_(.01, .99)
         weight = (1 - alpha) * torch.pow(alpha, self.exponent)
 
         x = F.pad(x, (self.length-1, 0), value=0)
