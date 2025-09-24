@@ -13,18 +13,19 @@ class EMA(nn.Module):
         self.length = length
         self.alpha = nn.Parameter(torch.rand(in_chn, 1, 1), requires_grad=True)
         self.x0 = nn.Parameter(torch.rand(1, in_chn), requires_grad=True)
-        self.exponent = torch.arange(length, 0, -1, dtype=torch.float32)
+        self.exponent = torch.arange(length, 0, -1, dtype=torch.float32) - 1
 
     def forward(self, x):
         alpha = self.alpha
-        with torch.no_grad():
-            alpha.clip_(.01, .99)
+        if self.training:
+            with torch.no_grad():
+                alpha.clip_(.01, .99)
+                self.x0.clip_(0, 6)
         weight = (1 - alpha) * torch.pow(alpha, self.exponent)
 
         x = F.pad(x, (self.length-1, 0), value=0)
-        with torch.no_grad():
-            self.x0.clip_(0, 6)
         x[:, :, self.length-2] += self.x0
+
         y = F.conv1d(x, weight, groups=self.in_chn)
         return y
 
