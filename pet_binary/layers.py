@@ -4,8 +4,7 @@ import torch.nn.functional as F
 
 
 class EMA(nn.Module):
-    """
-    Exponential Moving Average.
+    """Exponential Moving Average.
     """
     def __init__(self, in_chn=8, length=80):
         super().__init__()
@@ -23,6 +22,7 @@ class EMA(nn.Module):
                 self.x0.clip_(0, 6)
         weight = (1 - alpha) * torch.pow(alpha, self.exponent)
 
+        x.clip_(0, 6)
         x = F.pad(x, (self.length-1, 0), value=0)
         x[:, :, self.length-2] += self.x0
 
@@ -40,4 +40,20 @@ class Transpose(nn.Module):
 
     def forward(self, x):
         y = torch.transpose(x, 1, -1)
+        return y
+
+
+class MLP(nn.Sequential):
+    """Multi-Layer Perceptron.
+    """
+    def __init__(self, in_feat=8):
+        super().__init__(
+            nn.LayerNorm(in_feat, eps=1e-6, elementwise_affine=False),
+            nn.Linear(in_feat, 2*in_feat, bias=False),
+            nn.Hardtanh(-3, 3),
+            nn.Linear(2*in_feat, in_feat, bias=False)
+        )
+
+    def forward(self, x):
+        y = x + super().forward(x)
         return y

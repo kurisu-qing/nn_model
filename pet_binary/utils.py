@@ -18,7 +18,7 @@ def process_label(df, path):
 
         line = lines[-1].rstrip('\n').split(',')
         j, l = int(line[0]), int(line[1])
-        df.loc[j:, 'label'] = 1
+        df.loc[j:, 'label'] = l
 
 
 def process_feature(df):
